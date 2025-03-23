@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Go WASM Redis Cache</title>
+</head>
+<body>
+    <input type="text" id="key" placeholder="key" />
+    <input type="text" id="value" placeholder="value" />
+    <button onclick="set()">Set</button>
+    <button onclick="get()">Get</button>
+    <button onclick="deleteKey()">Delete</button>
+    <input type="text" id="search" placeholder="Search" />
+    <button onclick="fuzzySearch()">Fuzzy Search</button>
+    <div id="result"></div>
+    <script src="wasm_exec.js"></script>
+    <script>
+        const go = new Go();
+        WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
+            go.run(result.instance);
+        });
+
+        function set() {
+            const key = document.getElementById('key').value;
+            const value = document.getElementById('value').value;
+            Set(key, value);
+        }
+
+        function get() {
+            const key = document.getElementById('key').value;
+            const result = Get(key);
+            document.getElementById('result').textContent = result;
+        }
+
+        function deleteKey() {
+            const key = document.getElementById('key').value;
+            Delete(key);
+        }
+
+        function fuzzySearch() {
+            const query = document.getElementById('search').value;
+            const results = FuzzySearch(query);
+            document.getElementById('result').textContent = JSON.stringify(results);
+        }
+    </script>
+</body>
+</html>
